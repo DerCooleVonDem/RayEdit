@@ -80,7 +80,7 @@ This **completed proof-of-concept** is intended for:
 ### Quick Start
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/DerCooleVonDem/RayEdit
 cd RayEdit
 
 # Build project
