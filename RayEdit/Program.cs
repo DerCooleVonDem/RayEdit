@@ -1,5 +1,6 @@
 ﻿using Raylib_cs;
 
+// This comment was added by RayEdit!
 namespace TextEditor
 {
     /// <summary>
@@ -15,7 +16,9 @@ namespace TextEditor
             Raylib.InitWindow(1024, 768, "RayEdit - Text Editor");
             Raylib.SetTargetFPS(60);
             Raylib.MaximizeWindow();            
-
+            
+            
+            
             // Create and run the application manager
             AppManager appManager = new AppManager();
             Raylib.SetExitKey(KeyboardKey.KpDecimal);
