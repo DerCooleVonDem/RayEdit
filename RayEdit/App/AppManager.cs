@@ -1,3 +1,4 @@
+using RayEdit.Core;
 using RayEdit.UI.Views;
 using Raylib_cs;
 
@@ -9,21 +10,35 @@ namespace RayEdit.App
     public class AppManager
     {
         private IView _currentView;
+        private StartScreenView _startScreenView;
         private MenuView _menuView;
         private EditorView _editorView;
+        private RecentFilesManager _recentFilesManager;
 
         public AppManager()
         {
+            // Initialize shared RecentFilesManager
+            _recentFilesManager = new RecentFilesManager();
+            
             // Initialize views
+            _startScreenView = new StartScreenView();
             _menuView = new MenuView();
             _editorView = new EditorView();
 
-            // Set up event handlers
-            _menuView.OnFileSelected += OnFileSelected;
-            _editorView.OnBackToMenu += OnBackToMenu;
+            // Share RecentFilesManager with views
+            _startScreenView.SetRecentFilesManager(_recentFilesManager);
+            _editorView.SetRecentFilesManager(_recentFilesManager);
 
-            // Set the initial view to be the MenuView
-            _currentView = _menuView;
+            // Set up event handlers
+            _startScreenView.OnFileSelected += OnFileSelected;
+            _startScreenView.OnBrowseFiles += OnBrowseFiles;
+            _startScreenView.OnBrowseDirectory += OnBrowseDirectory;
+            _menuView.OnFileSelected += OnFileSelected;
+            _menuView.OnBackToStartScreen += OnBackToStartScreen;
+            _editorView.OnBackToMenu += OnBackToStartScreen;
+
+            // Set the initial view to be the StartScreenView
+            _currentView = _startScreenView;
         }
 
         /// <summary>
@@ -57,11 +72,28 @@ namespace RayEdit.App
             _currentView.Load();
         }
 
-        private void OnBackToMenu()
+        private void OnBrowseFiles()
         {
-            // Switch back to menu view
+            // Switch to file browser (MenuView)
             _currentView.Unload();
             _currentView = _menuView;
+            _currentView.Load();
+        }
+
+        private void OnBrowseDirectory(string directoryPath)
+        {
+            // Switch to file browser (MenuView) and set the directory
+            _currentView.Unload();
+            _menuView.SetDirectory(directoryPath);
+            _currentView = _menuView;
+            _currentView.Load();
+        }
+
+        private void OnBackToStartScreen()
+        {
+            // Switch back to start screen
+            _currentView.Unload();
+            _currentView = _startScreenView;
             _currentView.Load();
         }
     }

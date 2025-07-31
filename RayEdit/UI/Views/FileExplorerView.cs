@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using RayEdit.Core.Commands;
 using RayEdit.UI.Controls;
 using Raylib_cs;
@@ -60,7 +60,7 @@ namespace RayEdit.UI.Views
         }
 
         public void Update()
-        {
+        {    
             // Handle command bar input first
             if (_commandBar.IsVisible)
             {
@@ -138,6 +138,7 @@ namespace RayEdit.UI.Views
             // Command palette
             if (ctrlPressed && Raylib.IsKeyPressed(KeyboardKey.P))
             {
+                Console.WriteLine("This should work actually");
                 _commandBar.Show();
                 return;
             }
@@ -305,6 +306,91 @@ namespace RayEdit.UI.Views
                     _scrollOffset = 0;
                     Console.WriteLine("Navigated to home directory!");
                 }, "Navigation", new[] { "~" }, "home", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("edit", "Open the selected file in editor", 
+                args => {
+                    if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
+                    {
+                        var selectedItem = _items[_selectedIndex];
+                        if (!selectedItem.IsDirectory)
+                        {
+                            OnFileSelected?.Invoke(selectedItem.FullPath);
+                            Console.WriteLine($"Opening '{selectedItem.Name}' in editor...");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cannot edit a directory!");
+                        }
+                    }
+                }, "File Operations", new[] { "e" }, "edit", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("rename", "Rename the selected file or directory", 
+                args => {
+                    if (args.Length > 0)
+                    {
+                        RenameSelectedItem(args[0]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Usage: rename <new-name>");
+                    }
+                }, "File Operations", new[] { "mv", "move" }, "rename <new-name>", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("copy", "Copy the selected file", 
+                args => {
+                    if (args.Length > 0)
+                    {
+                        CopySelectedItem(args[0]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Usage: copy <destination>");
+                    }
+                }, "File Operations", new[] { "cp" }, "copy <destination>", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("info", "Show information about the selected item", 
+                args => {
+                    ShowSelectedItemInfo();
+                }, "Information", new[] { "stat", "details" }, "info", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("search", "Search for files in current directory", 
+                args => {
+                    if (args.Length > 0)
+                    {
+                        SearchFiles(args[0]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Usage: search <pattern>");
+                    }
+                }, "Navigation", new[] { "find" }, "search <pattern>", CommandContext.FileExplorer);
+
+            _commandRegistry.RegisterCommand("goto", "Navigate to a specific path", 
+                args => {
+                    if (args.Length > 0)
+                    {
+                        string targetPath = args[0];
+                        // Handle special paths
+                        if (targetPath == "~")
+                        {
+                            targetPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                        }
+                        else if (targetPath == "desktop")
+                        {
+                            targetPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                        }
+                        else if (targetPath == "documents")
+                        {
+                            targetPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        }
+                        
+                        NavigateToDirectory(targetPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Usage: goto <path> | Special paths: ~, desktop, documents");
+                    }
+                }, "Navigation", new[] { "go" }, "goto <path>", CommandContext.FileExplorer);
         }
 
         private void RefreshDirectory()
@@ -391,7 +477,18 @@ namespace RayEdit.UI.Views
         {
             try
             {
-                string newPath = Path.Combine(_currentDirectory, dirName);
+                string newPath;
+                
+                // Handle absolute paths
+                if (Path.IsPathRooted(dirName))
+                {
+                    newPath = dirName;
+                }
+                else
+                {
+                    newPath = Path.Combine(_currentDirectory, dirName);
+                }
+                
                 if (Directory.Exists(newPath))
                 {
                     _currentDirectory = Path.GetFullPath(newPath);
@@ -399,6 +496,10 @@ namespace RayEdit.UI.Views
                     _selectedIndex = 0;
                     _scrollOffset = 0;
                     Console.WriteLine($"Navigated to: {_currentDirectory}");
+                }
+                else
+                {
+                    Console.WriteLine($"Directory does not exist: {newPath}");
                 }
             }
             catch (Exception ex)
@@ -470,6 +571,130 @@ namespace RayEdit.UI.Views
             else if (_selectedIndex >= _scrollOffset + visibleItems)
             {
                 _scrollOffset = _selectedIndex - visibleItems + 1;
+            }
+        }
+
+        private void RenameSelectedItem(string newName)
+        {
+            try
+            {
+                if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
+                {
+                    var selectedItem = _items[_selectedIndex];
+                    string newPath = Path.Combine(_currentDirectory, newName);
+                    
+                    if (selectedItem.IsDirectory)
+                    {
+                        Directory.Move(selectedItem.FullPath, newPath);
+                        Console.WriteLine($"Directory renamed from '{selectedItem.Name}' to '{newName}'!");
+                    }
+                    else
+                    {
+                        File.Move(selectedItem.FullPath, newPath);
+                        Console.WriteLine($"File renamed from '{selectedItem.Name}' to '{newName}'!");
+                    }
+                    
+                    RefreshDirectory();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error renaming item: {ex.Message}");
+            }
+        }
+
+        private void CopySelectedItem(string destination)
+        {
+            try
+            {
+                if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
+                {
+                    var selectedItem = _items[_selectedIndex];
+                    
+                    if (!selectedItem.IsDirectory)
+                    {
+                        string destPath = Path.IsPathRooted(destination) ? 
+                            destination : 
+                            Path.Combine(_currentDirectory, destination);
+                            
+                        File.Copy(selectedItem.FullPath, destPath);
+                        Console.WriteLine($"File '{selectedItem.Name}' copied to '{destination}'!");
+                        RefreshDirectory();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Directory copying not implemented yet!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error copying item: {ex.Message}");
+            }
+        }
+
+        private void ShowSelectedItemInfo()
+        {
+            try
+            {
+                if (_selectedIndex >= 0 && _selectedIndex < _items.Count)
+                {
+                    var selectedItem = _items[_selectedIndex];
+                    
+                    Console.WriteLine($"\n=== Item Information ===");
+                    Console.WriteLine($"Name: {selectedItem.Name}");
+                    Console.WriteLine($"Type: {(selectedItem.IsDirectory ? "Directory" : "File")}");
+                    Console.WriteLine($"Full Path: {selectedItem.FullPath}");
+                    Console.WriteLine($"Size: {selectedItem.GetSizeString()}");
+                    Console.WriteLine($"Last Modified: {selectedItem.GetDateString()}");
+                    
+                    if (!selectedItem.IsDirectory)
+                    {
+                        var fileInfo = new FileInfo(selectedItem.FullPath);
+                        Console.WriteLine($"Created: {fileInfo.CreationTime:yyyy-MM-dd HH:mm:ss}");
+                        Console.WriteLine($"Extension: {fileInfo.Extension}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting item info: {ex.Message}");
+            }
+        }
+
+        private void SearchFiles(string pattern)
+        {
+            try
+            {
+                var foundFiles = Directory.GetFiles(_currentDirectory, $"*{pattern}*", SearchOption.TopDirectoryOnly);
+                var foundDirs = Directory.GetDirectories(_currentDirectory, $"*{pattern}*", SearchOption.TopDirectoryOnly);
+                
+                int totalFound = foundFiles.Length + foundDirs.Length;
+                
+                if (totalFound == 0)
+                {
+                    Console.WriteLine($"No files or directories found matching '{pattern}'");
+                }
+                else
+                {
+                    Console.WriteLine($"\n=== Search Results for '{pattern}' ===");
+                    
+                    foreach (var dir in foundDirs)
+                    {
+                        Console.WriteLine($"[DIR]  {Path.GetFileName(dir)}");
+                    }
+                    
+                    foreach (var file in foundFiles)
+                    {
+                        Console.WriteLine($"[FILE] {Path.GetFileName(file)}");
+                    }
+                    
+                    Console.WriteLine($"\nFound {foundDirs.Length} directories and {foundFiles.Length} files");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error searching: {ex.Message}");
             }
         }
     }

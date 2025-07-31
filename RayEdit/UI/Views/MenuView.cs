@@ -10,6 +10,7 @@ namespace RayEdit.UI.Views
     {
         // Events
         public event Action<string> OnFileSelected;
+        public event Action OnBackToStartScreen;
 
         // UI State
         private string[] _files;
@@ -31,6 +32,20 @@ namespace RayEdit.UI.Views
         {
             _currentDirectory = Directory.GetCurrentDirectory();
             RefreshFileList();
+        }
+
+        /// <summary>
+        /// Sets the current directory and refreshes the file list.
+        /// </summary>
+        public void SetDirectory(string directoryPath)
+        {
+            if (Directory.Exists(directoryPath))
+            {
+                _currentDirectory = Path.GetFullPath(directoryPath);
+                _selectedIndex = 0;
+                _scrollOffset = 0;
+                RefreshFileList();
+            }
         }
 
         public void Load()
@@ -75,6 +90,10 @@ namespace RayEdit.UI.Views
             else if (Raylib.IsKeyPressed(KeyboardKey.F5))
             {
                 RefreshFileList();
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Escape))
+            {
+                OnBackToStartScreen?.Invoke();
             }
         }
 
@@ -182,7 +201,7 @@ namespace RayEdit.UI.Views
             Raylib.DrawTextEx(_font, dirText, new Vector2(MarginX, 60), FontSize - 4, 1, Color.LightGray);
 
             // Draw instructions
-            string instructions = "↑↓: Navigate | Enter: Select | Backspace: Parent Dir | F5: Refresh";
+            string instructions = "↑↓: Navigate | Enter: Select | Backspace: Parent Dir | F5: Refresh | Esc: Back to Start";
             Raylib.DrawTextEx(_font, instructions, new Vector2(MarginX, 90), FontSize - 6, 1, Color.Gray);
 
             // Draw file list

@@ -1,4 +1,5 @@
 using System.Numerics;
+using RayEdit.Core;
 using RayEdit.Core.Commands;
 using RayEdit.Core.IO;
 using RayEdit.Core.Text;
@@ -17,6 +18,7 @@ namespace RayEdit.UI.Views
         // Data
         private TextBuffer _textBuffer;
         private string _currentFilePath = "document.txt";
+        private RecentFilesManager _recentFilesManager;
         
         // Command system
         private CommandRegistry _commandRegistry;
@@ -78,7 +80,29 @@ namespace RayEdit.UI.Views
             {
                 string content = FileManager.LoadText(_currentFilePath);
                 _textBuffer.SetContent(content);
+                
+                // Add to recent files when successfully loaded
+                if (_recentFilesManager != null && File.Exists(filePath))
+                {
+                    _recentFilesManager.AddRecentFile(filePath);
+                }
             }
+        }
+
+        /// <summary>
+        /// Sets the recent files manager to share with other views.
+        /// </summary>
+        public void SetRecentFilesManager(RecentFilesManager recentFilesManager)
+        {
+            _recentFilesManager = recentFilesManager;
+        }
+
+        /// <summary>
+        /// Gets the recent files manager for sharing with other views.
+        /// </summary>
+        public RecentFilesManager GetRecentFilesManager()
+        {
+            return _recentFilesManager;
         }
 
         public void Unload()
