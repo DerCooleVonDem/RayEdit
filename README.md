@@ -1,5 +1,9 @@
 # RayEdit - Proof-of-Concept Code Editor
 
+<img width="1919" height="1025" alt="image" src="https://github.com/user-attachments/assets/fff3b127-fe3a-46eb-a7cd-f87007c66049" />
+<img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/a4eaaa80-14c9-4624-a1c9-9c5977ebbbce" />
+
+
 **⚠️ This is a completed proof-of-concept project with no further development planned.**
 
 A demonstration of how to build a functional code editor using Raylib-cs and C#. This project serves as an educational example and technical showcase, illustrating the implementation of core text editing features specifically for C# development.
