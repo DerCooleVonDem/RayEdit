@@ -24,6 +24,9 @@ namespace RayEdit.UI.Views
         
         // Auto completion
         private AutoCompletion _autoCompletion;
+        
+        // UI Components
+        private Gutter _gutter;
 
         // Rendering & Layout
         private Font _font;
@@ -62,6 +65,10 @@ namespace RayEdit.UI.Views
             
             // Initialize auto completion
             _autoCompletion = new AutoCompletion(_font);
+            
+            // Initialize gutter
+            _gutter = new Gutter(80); // 80px width for line numbers
+            _gutter.SetTheme(new Color(45, 45, 45, 255), new Color(150, 150, 150, 255), Color.White, _font, FontSize);
         }
 
         public void LoadFile(string filePath)
@@ -476,6 +483,16 @@ namespace RayEdit.UI.Views
 
         public void Draw()
         {
+            // Calculate editor area dimensions
+            int screenWidth = Raylib.GetScreenWidth();
+            int screenHeight = Raylib.GetScreenHeight();
+            int gutterWidth = _gutter.Width;
+            int lineHeight = FontSize + LineSpacing;
+            int scrollY = _scrollOffsetLine * lineHeight;
+
+            // Draw gutter
+            _gutter.Draw(0, MarginY, screenHeight - MarginY * 2, _textBuffer, scrollY, lineHeight);
+
             // Draw selection highlighting first
             if (_textBuffer.HasSelection())
             {
@@ -487,7 +504,8 @@ namespace RayEdit.UI.Views
 
             // Draw cursor
             Vector2 cursorPosition = GetCharacterScreenPosition(_textBuffer.CursorIndex);
-            Raylib.DrawRectangle((int)cursorPosition.X, (int)cursorPosition.Y, 2, FontSize, Color.White);
+            // Make cursor slightly thicker and ensure it's precisely positioned
+            Raylib.DrawRectangle((int)Math.Round(cursorPosition.X), (int)Math.Round(cursorPosition.Y), 2, FontSize, Color.White);
             
             // Draw command bar on top of everything
             _commandBar?.Draw();
@@ -765,7 +783,7 @@ namespace RayEdit.UI.Views
                     lineStartIndex += lines[i].Length + 1; // +1 for the newline character
                 }
 
-                float xPos = MarginX;
+                float xPos = _gutter.Width + MarginX;
 
                 if (shouldHighlight && !string.IsNullOrEmpty(line))
                 {
@@ -773,15 +791,17 @@ namespace RayEdit.UI.Views
                     foreach (var token in tokens)
                     {
                         // Whitespaces jetzt als Token, also nicht mehr überspringen!
-                        Raylib.DrawTextEx(_font, token.Text, new Vector2(xPos, yPos), FontSize, 1, token.Color);
-                        Vector2 tokenSize = Raylib.MeasureTextEx(_font, token.Text, FontSize, 1);
+                        Raylib.DrawTextEx(_font, token.Text, new Vector2(xPos, yPos), (float)FontSize, 1.0f, token.Color);
+                        Vector2 tokenSize = Raylib.MeasureTextEx(_font, token.Text, (float)FontSize, 1.0f);
                         xPos += tokenSize.X;
                     }
                 }
                 else
                 {
                     // Draw without syntax highlighting (default white text)
-                    Raylib.DrawTextEx(_font, line, new Vector2(MarginX, yPos), FontSize, 1, Color.White);
+                    // Replace tabs with spaces for consistent rendering
+                    string displayLine = line.Replace("\t", "    ");
+                    Raylib.DrawTextEx(_font, displayLine, new Vector2(_gutter.Width + MarginX, yPos), (float)FontSize, 1.0f, Color.White);
                 }
             }
         }
@@ -807,7 +827,7 @@ namespace RayEdit.UI.Views
 
         private Vector2 GetCharacterScreenPosition(int charIndex)
         {
-            float x = MarginX;
+            float x = _gutter.Width + MarginX;
             float y = MarginY;
             int lineHeight = FontSize + LineSpacing;
             
@@ -837,7 +857,7 @@ namespace RayEdit.UI.Views
                 string textBeforeCursor = content.Substring(lineStartIndex, charIndex - lineStartIndex);
                 // Replace tabs with spaces for measurement
                 textBeforeCursor = textBeforeCursor.Replace("\t", "    ");
-                Vector2 textSize = Raylib.MeasureTextEx(_font, textBeforeCursor, FontSize, 1);
+                Vector2 textSize = Raylib.MeasureTextEx(_font, textBeforeCursor, (float)FontSize, 1.0f);
                 x += textSize.X;
             }
 

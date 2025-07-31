@@ -71,7 +71,9 @@ namespace RayEdit.Core.Text
                     while (i < line.Length && char.IsWhiteSpace(line[i]))
                         i++;
                     string ws = line.Substring(start, i - start);
-                    tokens.Add(new Token(ws, lineStartIndex + start, i - start, Color.White));
+                    // Replace tabs with spaces for consistent rendering
+                    string displayWs = ws.Replace("\t", "    ");
+                    tokens.Add(new Token(displayWs, lineStartIndex + start, i - start, Color.White));
                     continue;
                 }
 
