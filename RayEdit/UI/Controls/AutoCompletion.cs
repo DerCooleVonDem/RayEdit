@@ -1,11 +1,8 @@
-using Raylib_cs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Numerics;
+using System.Text.RegularExpressions;
+using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.UI.Controls
 {
     public class AutoCompletion
     {

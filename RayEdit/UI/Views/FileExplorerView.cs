@@ -1,11 +1,9 @@
-using Raylib_cs;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
+using RayEdit.Core.Commands;
+using RayEdit.UI.Controls;
+using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.UI.Views
 {
     public class FileItem
     {
@@ -51,7 +49,7 @@ namespace TextEditor
 
         public void Load()
         {
-            _font = Raylib.LoadFont("FiraCode-Regular.ttf");
+            _font = Raylib.LoadFont("Assets/Fonts/FiraCode-Regular.ttf");
             InitializeCommandSystem();
             RefreshDirectory();
         }

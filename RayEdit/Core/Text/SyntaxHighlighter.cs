@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.Core.Text
 {
     /// <summary>
     /// Provides syntax highlighting for C# code.

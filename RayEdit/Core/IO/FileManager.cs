@@ -1,6 +1,4 @@
-using System.IO;
-
-namespace TextEditor
+namespace RayEdit.Core.IO
 {
     /// <summary>
     /// Provides static methods for loading from and saving to text files.

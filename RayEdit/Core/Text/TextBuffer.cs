@@ -1,6 +1,4 @@
-using System;
-
-namespace TextEditor
+namespace RayEdit.Core.Text
 {
     /// <summary>
     /// Represents the data model for the text editor.

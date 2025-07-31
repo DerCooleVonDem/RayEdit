@@ -1,6 +1,7 @@
+using RayEdit.UI.Views;
 using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.App
 {
     /// <summary>
     /// Manages the main application loop and the active view.

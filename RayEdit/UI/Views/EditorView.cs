@@ -1,10 +1,11 @@
-using Raylib_cs;
 using System.Numerics;
-using System;
-using System.Runtime.InteropServices;
-using System.Linq;
+using RayEdit.Core.Commands;
+using RayEdit.Core.IO;
+using RayEdit.Core.Text;
+using RayEdit.UI.Controls;
+using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.UI.Views
 {
     /// <summary>
     /// The main view for text editing. Handles user input and rendering of the text buffer.
@@ -50,7 +51,7 @@ namespace TextEditor
         public void Load()
         {
             // Load the font
-            _font = Raylib.LoadFont("FiraCode-Regular.ttf");
+            _font = Raylib.LoadFont("Assets/Fonts/FiraCode-Regular.ttf");
             
             // Load initial content from a file and create the text buffer
             string initialContent = FileManager.LoadText(_currentFilePath);

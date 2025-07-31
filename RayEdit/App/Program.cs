@@ -1,7 +1,7 @@
 ﻿using Raylib_cs;
 
 // This comment was added by RayEdit!
-namespace TextEditor
+namespace RayEdit.App
 {
     /// <summary>
     /// The main entry point for the application.

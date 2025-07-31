@@ -1,4 +1,4 @@
-namespace TextEditor
+namespace RayEdit.UI.Views
 {
     /// <summary>
     /// Defines the contract for a view within the application.

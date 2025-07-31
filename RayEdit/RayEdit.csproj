@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -13,9 +13,22 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="FiraCode-Regular.ttf">
+      <None Update="Assets\Fonts\FiraCode-Regular.ttf">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Assets\Themes\Default.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="App\" />
+      <Folder Include="Core\Commands\" />
+      <Folder Include="Core\IO\" />
+      <Folder Include="Core\Text\" />
+      <Folder Include="UI\Controls\" />
+      <Folder Include="UI\Rendering\" />
+      <Folder Include="UI\Views\" />
     </ItemGroup>
 
 </Project>

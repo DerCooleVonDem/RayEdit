@@ -1,10 +1,8 @@
-using Raylib_cs;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Linq;
+using RayEdit.Core.Commands;
+using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.UI.Controls
 {
     /// <summary>
     /// Spotlight-inspired command bar with auto-completion dropdown
@@ -164,7 +162,7 @@ namespace TextEditor
             // Draw cursor
             if (!string.IsNullOrEmpty(_inputText))
             {
-                Vector2 textSize = Raylib.MeasureTextEx(_font, _inputText, FontSize, 1);
+                Vector2 textSize = Raylib.MeasureTextEx(_font, _inputText, (float)FontSize, 1.0f);
                 int cursorX = x + Padding * 2 + (int)textSize.X;
                 int cursorY = y + Padding + 10;
                 Raylib.DrawRectangle(cursorX, cursorY, 2, FontSize + 4, TextColor);
@@ -205,7 +203,7 @@ namespace TextEditor
                 Raylib.DrawTextEx(_font, command.Name, new Vector2(x + Padding * 2, itemY + 6), FontSize, 1, TextColor);
                 
                 // Draw category
-                Vector2 nameSize = Raylib.MeasureTextEx(_font, command.Name, FontSize, 1);
+                Vector2 nameSize = Raylib.MeasureTextEx(_font, command.Name, (float)FontSize, 1.0f);
                 string categoryText = $"[{command.Category}]";
                 Raylib.DrawTextEx(_font, categoryText, new Vector2(x + Padding * 2 + nameSize.X + 10, itemY + 6), FontSize - 2, 1, CategoryColor);
                 

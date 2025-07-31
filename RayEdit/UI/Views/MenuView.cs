@@ -1,10 +1,7 @@
-using Raylib_cs;
-using System;
-using System.IO;
-using System.Linq;
 using System.Numerics;
+using Raylib_cs;
 
-namespace TextEditor
+namespace RayEdit.UI.Views
 {
     /// <summary>
     /// The main menu view for file selection and navigation.
@@ -39,7 +36,7 @@ namespace TextEditor
         public void Load()
         {
             // Load the font (same as EditorView for consistency)
-            _font = Raylib.LoadFont("FiraCode-Regular.ttf");
+            _font = Raylib.LoadFont("Assets/Fonts/FiraCode-Regular.ttf");
             RefreshFileList();
         }
 

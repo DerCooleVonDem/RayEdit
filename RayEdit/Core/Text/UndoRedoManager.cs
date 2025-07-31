@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace TextEditor
+namespace RayEdit.Core.Text
 {
     /// <summary>
     /// Represents a single edit operation that can be undone/redone
