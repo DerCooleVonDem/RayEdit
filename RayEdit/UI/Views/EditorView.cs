@@ -812,15 +812,47 @@ namespace RayEdit.UI.Views
             if (start == -1) return;
 
             Color selectionColor = new Color(100, 149, 237, 100); // Light blue with transparency
+            string content = _textBuffer.Content;
+            int lineHeight = FontSize + LineSpacing;
+            
+            // Get line and column positions for start and end of selection
+            var (startLine, startCol) = GetCursorPositionFromIndex(content, start);
+            var (endLine, endCol) = GetCursorPositionFromIndex(content, end);
 
-            for (int i = start; i < end; i++)
+            for (int lineNum = startLine; lineNum <= endLine; lineNum++)
             {
-                if (_textBuffer.Content[i] == '\n') continue;
+                // Calculate Y position for this line
+                float lineY = MarginY + (lineNum * lineHeight) - (_scrollOffsetLine * lineHeight);
+                
+                // Skip lines not visible on screen
+                if (lineY + lineHeight < MarginY || lineY > Raylib.GetScreenHeight() - MarginY)
+                    continue;
 
-                Vector2 charPos = GetCharacterScreenPosition(i);
-                if (charPos.Y >= MarginY && charPos.Y < Raylib.GetScreenHeight() - MarginY)
+                // Get the text for this line
+                string lineText = GetLineText(content, lineNum);
+                if (string.IsNullOrEmpty(lineText)) continue;
+
+                // Calculate selection bounds for this line
+                int selectionStart = (lineNum == startLine) ? startCol : 0;
+                int selectionEnd = (lineNum == endLine) ? endCol : lineText.Length;
+
+                if (selectionStart < selectionEnd)
                 {
-                    Raylib.DrawRectangle((int)charPos.X, (int)charPos.Y, CharWidth, FontSize, selectionColor);
+                    // Calculate pixel positions
+                    string beforeSelection = lineText.Substring(0, Math.Min(selectionStart, lineText.Length));
+                    string selectionText = lineText.Substring(selectionStart, Math.Min(selectionEnd - selectionStart, lineText.Length - selectionStart));
+
+                    // Replace tabs with spaces for measurement
+                    beforeSelection = beforeSelection.Replace("\t", "    ");
+                    selectionText = selectionText.Replace("\t", "    ");
+
+                    Vector2 beforeSize = Raylib.MeasureTextEx(_font, beforeSelection, (float)FontSize, 1.0f);
+                    Vector2 selectionSize = Raylib.MeasureTextEx(_font, selectionText, (float)FontSize, 1.0f);
+
+                    float selectionX = _gutter.Width + MarginX + beforeSize.X;
+                    float selectionWidth = selectionSize.X;
+
+                    Raylib.DrawRectangle((int)selectionX, (int)lineY, (int)selectionWidth, FontSize, selectionColor);
                 }
             }
         }
@@ -896,6 +928,35 @@ namespace RayEdit.UI.Views
                 int targetCol = Math.Min(col, lines[targetLine].Length);
                 _textBuffer.SetCursorPosition(targetLineStart + targetCol);
             }
+        }
+        
+        private (int line, int column) GetCursorPositionFromIndex(string content, int index)
+        {
+            int line = 0;
+            int column = 0;
+            
+            for (int i = 0; i < index && i < content.Length; i++)
+            {
+                if (content[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            
+            return (line, column);
+        }
+        
+        private string GetLineText(string content, int lineNumber)
+        {
+            string[] lines = content.Split('\n');
+            if (lineNumber >= 0 && lineNumber < lines.Length)
+                return lines[lineNumber];
+            return "";
         }
         
         private void EnsureCursorIsVisible()
