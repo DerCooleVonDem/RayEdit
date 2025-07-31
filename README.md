@@ -80,7 +80,7 @@ This **completed proof-of-concept** is intended for:
 ### Quick Start
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/DerCooleVonDem/RayEdit
 cd RayEdit
 
 # Build project
@@ -140,7 +140,7 @@ This project serves as a **learning resource** and **technical demonstration** o
 
 ## 🤝 Contributing
 
-**This project is a completed proof-of-concept and is not accepting contributions or pull requests.**
+**This project is a completed proof-of-concept, and pull requests may or may not be accepted.**
 
 However, you are welcome to:
 - **Fork** the repository for your own learning and experimentation
@@ -161,14 +161,8 @@ This project is licensed under the MIT License. See `LICENSE` file for details.
 - **FiraCode** for the monospaced font
 - The **C# Community** for inspiration and feedback
 
-## 📞 Contact
+**This project is not actively maintained.**
 
-**This project is archived and not actively maintained.**
-
-For educational purposes or questions about the implementation:
-- Review the **source code** and comments for understanding
-- Use this project as a **reference** for your own implementations
-- Fork and modify for your **learning projects**
 
 ---
 
